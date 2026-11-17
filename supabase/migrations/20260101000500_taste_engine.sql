@@ -187,6 +187,8 @@ $$;
 
 revoke execute on function public.refresh_taste_similarity() from public, anon, authenticated;
 revoke execute on function public.refresh_film_similarity() from public, anon, authenticated;
+grant execute on function public.refresh_taste_similarity() to service_role;
+grant execute on function public.refresh_film_similarity() to service_role;
 
 ------------------------------------------------------------------------------
 -- Read APIs for the app (SECURITY INVOKER)
