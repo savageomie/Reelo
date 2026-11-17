@@ -81,3 +81,15 @@ Each entry: what was decided, and why. (★ = worth knowing for the viva.)
 - **D-027 Ranked ballots are replaced atomically per user** (delete own votes, insert new ranks) while status is
   `voting`; RLS enforces own-vote-only and voting-window-only.
 - **D-028 Realtime tables use REPLICA IDENTITY FULL** so filtered DELETE events are delivered too.
+
+## Taste engine
+
+- **D-029 ★ Taste match uses each user's mean over ALL their ratings** (not only the shared films) for centring,
+  and the latest rating per film (rewatches). Score = round(((cos · n/(n+5)) + 1) / 2 · 100). No overlap → no score
+  ("No films in common yet"); 50% means "no evidence either way"; overlap < 3 is labelled "Early guess".
+- **D-030 Precomputed taste_similarity is computed by a SECURITY DEFINER job** and readable only by the two users in
+  the pair; the live profile ring uses the invoker function so private diaries are never compared without access.
+- **D-031 Recommendations are blended on the device** from three server-side ingredients (collaborative candidates RPC,
+  films_cache pool by popularity, the user's own diary). Weights: collaborative 0.5, content 0.35, popularity 0.15;
+  fewer than 5 rated films → popularity (+ a little content). Content features: genres (1.0), directors (1.5),
+  top-5 cast (0.6), decade (0.5); profile weight = rating − 3 (4★ → 1, 5★ → 2).

@@ -88,3 +88,16 @@ Done:
   live results computed with the same IRV code the server uses; "x/y voted"; live/connecting indicator.
 - `close_voting` RPC picks the winner (IRV or most yes), stores the rounds, adds the film to every member's
   watchlist and notifies everyone; Result page shows round-by-round elimination. Owner can reset.
+
+## Phase 6 — Recommendations and taste match ✅
+
+Plan: taste match live via `compute_taste_match` (profile ring) and precomputed via `taste_similarity`
+("People with similar taste"); hybrid recommendations from a pure, tested pipeline.
+
+Done:
+- Taste-match ring on every other user's profile (mean-centred cosine + shrinkage, SQL ↔ TS parity tested).
+- "People with similar taste" on Home (`get_similar_users`, overlap ≥ 3, nightly pg_cron refresh).
+- "Users who loved this also loved" on film pages (item-item `film_similarity`).
+- `features/recs/pipeline.ts` (+ tests): content profile from loved films, collaborative candidates from
+  `get_collaborative_recs`, popularity; hybrid blend; cold-start fallback; "Because you loved X" rail.
+- Home rails: Recommended for you (with "Fans of X" explanations), Because you loved X, Trending.
