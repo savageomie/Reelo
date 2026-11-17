@@ -22,7 +22,10 @@ export function useFilms(ids: number[]) {
   return useQuery({
     queryKey: ['films', unique],
     queryFn: async () => {
-      const films = await tmdb.films(unique);
+      // The edge function accepts up to 60 ids per call.
+      const chunks: number[][] = [];
+      for (let i = 0; i < unique.length; i += 60) chunks.push(unique.slice(i, i + 60));
+      const films = (await Promise.all(chunks.map((c) => tmdb.films(c)))).flat();
       const map: Record<number, Film> = {};
       for (const f of films) {
         map[f.tmdb_id] = f;

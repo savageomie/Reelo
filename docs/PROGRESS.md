@@ -60,3 +60,16 @@ Done:
 - Push: `lib/push.ts` registers Expo push tokens (owner-only RLS); `supabase/functions/send-push` delivers via the
   Expo Push API when called by a Database Webhook on `notifications` INSERT.
 - Block/report (public profile menu).
+
+## Phase 4 — Stats, heatmap, Wrapped ✅
+
+Plan: compute stats on device from diary + films_cache (pure `computeStats`, already tested), render with
+react-native-svg charts, cache yearly snapshot in `user_stats`, build a swipeable shareable Wrapped.
+
+Done:
+- `components/charts.tsx`: calendar heatmap (SVG), horizontal & vertical bars, stat cards.
+- Stats screen (any user, RLS-respecting): year chips + all-time, films/hours/avg/streak, heatmap, per month,
+  rating distribution, genres, decades, top directors & actors.
+- Wrapped: 7 story cards (totals, top genre, director/actor, busiest month, top rated, taste persona),
+  each exported as a PNG via view-shot + share sheet. `features/stats/persona.ts` + tests.
+- Owner's yearly stats snapshot upserted into `user_stats`.
