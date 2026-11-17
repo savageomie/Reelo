@@ -31,3 +31,17 @@ Done:
 - Pure modules + tests: taste match, ranked choice, offline queue, feed cursor, recommendations, stats, rating, validation.
 - Screens: welcome, sign up, log in (+Google), onboarding, discover, search results, film detail, person, log modal, Log tab.
 - Offline queue runtime (`lib/offlineQueue.ts`) already used by logging and watchlist.
+
+## Phase 2 — Watchlist, lists, profile, diary views ✅
+
+Plan: profile screen shared by "me" and public profiles; diary grouped by month; diary entry page; watchlist
+with sort/filters (pure, tested); lists overview/detail/editor/add-to-list; followers/following.
+
+Done:
+- My profile tab + public profile (`ProfileView`): counts, favourite four, recent films, taste-match ring,
+  follow/requested state, private-diary lock, block/report menu.
+- Edit profile: avatar upload to Storage (`avatars/<uid>/...`), username/display name/bio, private toggle, favourite four.
+- Diary (month sections in FlashList, pending-sync badge), Diary entry (spoiler reveal, likes, comments).
+- Watchlist: 6 sorts, genre/runtime/"streaming now" filters (`features/lists/watchlistFilter.ts` + tests).
+- Lists overview, list detail (likes, comments, share as image/text), list editor (create/edit, reorder, remove, delete),
+  add-to-list sheet; followers/following screen.

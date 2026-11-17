@@ -60,3 +60,12 @@ Each entry: what was decided, and why. (★ = worth knowing for the viva.)
 
 - **D-021 Jest mocks:** Lucide (ESM-only) and Reanimated 4 are replaced by small local mocks in `test/` via
   `moduleNameMapper`; RNTL 14's async `render`/`fireEvent` are awaited.
+
+## UI
+
+- **D-022 List reordering uses accessible move-up/move-down buttons** instead of long-press drag-and-drop. It works
+  with screen readers and is reliable in Expo Go; positions are saved in one `reorder_list` RPC call.
+- **D-023 List "share as image"** captures the list view with react-native-view-shot + expo-sharing (both in Expo Go),
+  falling back to a text share with a `reelo://list/<id>` deep link.
+- **D-024 Profile, diary, watchlist and lists screens take an optional `userId`** param so the same screen serves
+  "mine" and "someone else's"; RLS decides what is visible, and the UI shows a lock card for private diaries.
