@@ -1,0 +1,526 @@
+Reelo: Project Blueprint
+A social movie diary where your taste is your identity.
+Final lab project. React Native, full backend, zero cost.
+1. Overview
+1.1 The idea
+Reelo is a mobile app where people log films they watch, rate and review them, build lists, and follow friends. It connects people through movie taste: the app compares ratings to show how aligned two users are, recommends films using similar users, and helps groups pick one movie to watch together through realtime voting.
+1.2 One-line pitch
+"A social platform where your movie taste is your identity, and the app uses it to connect you with people, recommendations and group decisions."
+1.3 Problem it solves
+• Film lovers track what they watch in scattered notes, spreadsheets or memory.
+• Existing apps are either pure trackers or generic social networks with no taste-based connection.
+• Groups of friends waste time deciding what to watch together.
+1.4 Target users
+User
+Need
+Casual viewer
+Remember what they watched, get good recommendations
+Film enthusiast
+Detailed diary, lists, stats, a community with similar taste
+Friend group
+Quickly decide on one movie everyone can stream
+1.5 What makes it stand out
+1.  Watch Together: realtime group voting with streaming and runtime filters.
+2.  Taste engine: taste-match percentage and collaborative recommendations.
+3.  Yearly Wrapped: shareable stats cards.
+4.  Offline-first logging: works in poor signal and syncs later.
+5.  Poster-themed UI: each film page takes its colour palette from the poster.
+1.6 Constraints
+• Everything must run on free tiers, with no paid subscription.
+• Built mainly with Claude Code, so the architecture favours well-known, well-documented tools.
+• TMDB data is free for non-commercial use and requires visible attribution.
+2. Feature Map
+Priority key: P0 = must have, P1 = should have, P2 = nice to have.
+2.1 Accounts and profile
+Feature
+Priority
+Email and password sign-up and login
+P0
+Google sign-in
+P1
+Username, avatar, bio
+P0
+Favourite 4 films showcase
+P1
+Public or private diary toggle
+P1
+Follower and following counts
+P0
+Profile stats summary
+P1
+Delete account and data
+P1
+2.2 Discover and film pages
+Feature
+Priority
+Search films, people, users
+P0
+Trending, popular, top rated
+P0
+Browse by genre
+P1
+Film page: poster, backdrop, synopsis, cast, crew
+P0
+Trailer playback
+P1
+Where to stream (TMDB watch providers)
+P1
+Average Reelo rating and rating histogram
+P1
+Poster-derived colour theme
+P2
+2.3 Diary and logging
+Feature
+Priority
+Log film: date, half-star rating, review, tags, rewatch flag
+P0
+Like a film (heart)
+P0
+Edit and delete entries
+P0
+Watchlist with sort and filters
+P0
+Diary view grouped by month
+P0
+Offline logging with background sync
+P1
+Spoiler toggle on reviews
+P1
+2.4 Lists
+Feature
+Priority
+Create public or private lists
+P0
+Add and remove films, drag-and-drop reorder
+P1
+Like and comment on lists
+P1
+Share a list as a link or image
+P2
+2.5 Social
+Feature
+Priority
+Follow and unfollow
+P0
+Activity feed from followed users
+P0
+Like and comment on reviews
+P0
+In-app notifications
+P1
+Push notifications
+P1
+Taste-match percentage between two users
+P1
+"People with similar taste" suggestions
+P1
+Report and block user
+P2
+2.6 Recommendations
+Feature
+Priority
+"Because you loved X" (content-based)
+P1
+"Users who liked this also liked" (collaborative)
+P1
+Personalised home carousels
+P1
+2.7 Stats and Wrapped
+Feature
+Priority
+Calendar heatmap of films watched
+P1
+Genre and decade breakdown
+P1
+Hours watched, films per month
+P1
+Rating distribution
+P1
+Top directors and actors
+P2
+Yearly Wrapped, exportable as an image
+P2
+2.8 Watch Together (signature feature)
+Feature
+Priority
+Create a group and invite by code or link
+P0
+Members add film picks to a shared pool
+P0
+Filters: shared streaming service, max runtime, genre
+P1
+Voting round with realtime live results
+P0
+Voting modes: swipe yes or no, ranked-choice
+P1
+Winner announcement and add to everyone's watchlist
+P1
+Push when voting opens or closes
+P2
+2.9 Extras
+Feature
+Priority
+Letterboxd CSV import
+P1
+Dark and light mode
+P0
+Haptics, skeleton loaders, shared-element transitions
+P1
+Seeded demo data
+P0
+Discussion threads with spoiler tags
+P2
+Taste profile card (genre fingerprint, shareable)
+P2
+3. Tech Stack (all free)
+Layer
+Technology
+Why
+App framework
+React Native, Expo SDK, Expo Router, TypeScript
+File-based routing, fast setup, Expo Go for demo
+Styling
+NativeWind (Tailwind for RN)
+Fast, consistent UI
+Animation and gestures
+Reanimated, Gesture Handler
+Smooth transitions, drag-and-drop, swipe voting
+Lists and images
+FlashList, expo-image
+Performant long lists and cached posters
+Charts
+Victory Native or react-native-svg
+Heatmap and stats charts
+Server state
+TanStack Query
+Caching, pagination, optimistic updates
+Client state
+Zustand
+Light global state
+Local storage
+MMKV and an offline mutation queue
+Offline-first logging
+Backend platform
+Supabase (free tier)
+Postgres, Auth, Storage, Realtime, Edge Functions
+Database
+PostgreSQL
+Relational data, full-text search, SQL functions
+Security
+Row-Level Security policies
+Per-user data protection
+Server logic
+Edge Functions (Deno)
+TMDB proxy and cache, import processing
+Scheduled jobs
+pg_cron
+Recompute stats and recommendations
+Movie data
+TMDB API
+Free, rich metadata and watch providers
+Notifications
+Expo Notifications
+Free push
+Testing
+Jest, React Native Testing Library, pgTAP (optional)
+Unit, component and DB tests
+CI/CD
+GitHub Actions
+Lint, typecheck, test on every push
+Build and distribution
+Expo Go, EAS Build free tier
+Demo and APK
+Dev tooling
+Claude Code, ESLint, Prettier, Supabase CLI
+AI-assisted development
+Free-tier watch-outs: Supabase free projects pause after about a week of inactivity (wake it before the demo), limit storage and database size, and cap Edge Function calls. EAS free builds are queued and limited per month. Cache TMDB responses to stay well inside rate limits.
+4. System Architecture
++---------------------------+
+|   React Native (Expo)     |
+|  Screens / Query / MMKV   |
++-------------+-------------+
+              |
+     HTTPS + WebSocket
+              |
++-------------v--------------------------+
+|              Supabase                   |
+|  Auth | Postgres + RLS | Realtime       |
+|  Storage | Edge Functions | pg_cron     |
++-------------+--------------------------+
+              |
+       Edge Function proxy
+              |
+        +-----v-----+
+        |  TMDB API |
+        +-----------+
+Key flows
+1.  Browse and search: app calls the TMDB proxy edge function, which checks films_cache and only calls TMDB on a miss or stale entry.
+2.  Log a film: app inserts into diary_entries. Triggers update counters and write a feed event. If offline, the mutation is queued in MMKV and replayed on reconnect.
+3.  Feed: a query joins activity_events with follows, paginated by cursor.
+4.  Voting: clients subscribe to group_votes via Realtime, and tallies update live.
+5.  Recommendations: pg_cron periodically refreshes similarity tables, and the app reads precomputed results.
+5. Database Design
+5.1 Tables
+Table
+Key columns
+Purpose
+profiles
+id (= auth uid), username, avatar_url, bio, is_private, favourites (int[])
+User profile
+films_cache
+tmdb_id (PK), title, year, poster_path, backdrop_path, genres, runtime, directors, cast, providers, fetched_at
+Cached TMDB data
+diary_entries
+id, user_id, tmdb_id, watched_on, rating (0.5 to 5), review, spoiler, tags, is_rewatch, liked
+Core diary
+watchlist
+user_id, tmdb_id, added_at
+Films to watch
+lists
+id, owner_id, title, description, is_public
+User lists
+list_items
+list_id, tmdb_id, position, note
+Ordered films in a list
+follows
+follower_id, following_id, created_at
+Social graph
+likes
+user_id, target_type, target_id
+Likes on reviews, lists
+comments
+id, user_id, target_type, target_id, body, created_at
+Comments
+activity_events
+id, actor_id, type, ref_id, created_at
+Feed source
+notifications
+id, user_id, type, payload, read_at
+In-app notifications
+push_tokens
+user_id, token
+Push delivery
+groups
+id, name, owner_id, invite_code, status
+Watch Together groups
+group_members
+group_id, user_id, joined_at
+Membership
+group_picks
+id, group_id, tmdb_id, added_by
+Candidate films
+group_votes
+group_id, pick_id, user_id, value or rank
+Votes
+taste_similarity
+user_a, user_b, score, overlap, updated_at
+Precomputed taste match
+film_similarity
+tmdb_id, similar_tmdb_id, score
+Precomputed item-item similarity
+user_stats
+user_id, year, json
+Cached stats and Wrapped data
+5.2 Indexes and search
+• Index diary_entries (user_id, watched_on desc), (tmdb_id), follows (following_id).
+• Generated tsvector column on films_cache.title and profiles.username with GIN indexes for full-text search.
+5.3 Triggers and functions
+• After insert, update or delete on diary_entries: refresh film average rating and counts, insert an activity_events row.
+• After insert on follows, likes, comments: create a notification.
+• get_feed(cursor, limit): paginated feed function.
+• compute_taste_match(user_a, user_b): returns score and overlap.
+• tally_ranked_choice(group_id): instant-runoff result.
+5.4 Row-Level Security rules
+Table
+Rule
+profiles
+Anyone can read public fields, only the owner can update
+diary_entries
+Owner full access, others can read only if the profile is public or they follow the owner
+lists and list_items
+Public lists are readable by all, private only by owner
+follows, likes, comments
+Users can create and delete only their own rows
+groups and children
+Only group members can read or write
+group_votes
+A user can write only their own vote, and only while the group status is "voting"
+notifications and push_tokens
+Owner only
+6. Algorithms (viva talking points)
+6.1 Taste match percentage
+For two users, take films both have rated. Mean-center each user's ratings (subtract their own average) so a harsh rater and a generous rater are comparable. Compute cosine similarity on the centered vectors, then apply a shrinkage factor n / (n + k) where n is the number of shared films and k is about 5, so two users who share only one film do not show 100%. Map the result to 0 to 100%.
+6.2 Recommendations
+• Content-based: build a vector from genres, director, top cast and decade for films a user rated 4 stars or higher, then rank unseen films by similarity.
+• Collaborative (item-item): films frequently rated highly by the same users are similar. Precomputed nightly into film_similarity.
+• Hybrid: weighted blend, with a popularity fallback for new users (cold start).
+6.3 Ranked-choice voting (instant runoff)
+Each member ranks picks. Count first choices, eliminate the pick with the fewest, redistribute those ballots to next choices, and repeat until a pick holds a majority. Ties are broken by total points then earliest added.
+6.4 Offline sync
+Mutations are written to a persistent queue with a client-generated UUID, which makes retries idempotent. On reconnect they replay in order, and conflicts resolve with last-write-wins on updated_at.
+6.5 Feed
+Cursor pagination on (created_at, id) over events from followed users, which avoids the slowness and duplicates of offset pagination.
+7. App Navigation and Screens
+Root
+|-- (auth)
+|   |-- Welcome
+|   |-- Sign up
+|   |-- Log in
+|   |-- Onboarding (pick favourite genres, rate a few films)
+|
+|-- (tabs)
+|   |-- Home (feed, recommended carousels)
+|   |-- Discover (search, trending, genres)
+|   |-- Log (quick-add modal)
+|   |-- Together (groups)
+|   |-- Profile
+|
+|-- film/[id]
+|-- person/[id]
+|-- user/[username]
+|-- list/[id], list/new
+|-- diary/[entryId]
+|-- group/[id] (picks, voting, result)
+|-- stats, wrapped
+|-- notifications
+|-- settings (theme, privacy, import, delete account)
+Screen inventory (about 25) Welcome, Sign up, Log in, Onboarding, Home, Discover, Search results, Film detail, Person detail, Log film modal, Diary, Diary entry, Watchlist, Lists overview, List detail, List editor, Public profile, My profile, Edit profile, Followers and following, Notifications, Groups home, Create or join group, Group detail with picks, Voting, Result, Stats, Wrapped, Settings, Import.
+8. Design System
+• Look: dark-first, cinema feel, poster-led, with a single accent colour.
+• Typography: one display font for titles, one clean sans for body.
+• Components: poster card, rating stars (half-star), review card, avatar stack, list tile, stat card, bottom sheet, skeleton loader, empty state, toast.
+• Motion: shared-element poster transition, spring animations on rating, swipe cards for voting, haptic feedback on rating and vote.
+• States: every screen has loading (skeleton), empty and error states.
+• Accessibility: minimum 44 pt touch targets, sufficient contrast, labels on icons, dynamic text sizes.
+9. Project Structure
+reelo/
+|-- app/                  Expo Router screens
+|-- components/           UI components
+|-- features/             diary, lists, social, groups, stats, recs
+|-- lib/                  supabase client, tmdb client, queue, utils
+|-- hooks/                query hooks
+|-- store/                Zustand stores
+|-- theme/                colours, fonts, tokens
+|-- supabase/
+|   |-- migrations/       SQL schema and RLS
+|   |-- functions/        edge functions
+|   |-- seed.sql or seed script
+|-- scripts/              seed generator, CSV import tester
+|-- __tests__/
+|-- .github/workflows/    CI
+|-- CLAUDE.md             instructions for Claude Code
+|-- README.md
+10. Development Plan
+Phase
+Scope
+Output
+0
+Setup: Expo app, Supabase project, env, CLAUDE.md, CI, theme
+Running skeleton
+1
+Auth, profiles, TMDB proxy, search, film page, log a film
+Core diary works
+2
+Watchlist, lists, profile, diary views
+Personal features done
+3
+Follows, feed, likes, comments, notifications
+Social layer
+4
+Stats, heatmap, Wrapped
+Visual showcase
+5
+Watch Together with realtime voting
+Signature feature
+6
+Recommendations and taste match
+Taste engine
+7
+CSV import, offline sync, polish, animations
+Final quality
+8
+Seed data, tests, APK build, docs, demo rehearsal
+Submission ready
+Scope safety: phases 0 to 5 plus the seed data make a strong submission. If time runs short, cut phase 6 down to taste match only, and trim phase 7.
+Working with Claude Code
+1.  Write CLAUDE.md first: stack, folder structure, naming rules, "always add RLS to new tables", "run typecheck and tests before finishing".
+2.  Give one phase at a time, and ask for a plan before code.
+3.  Commit after each working feature so you can roll back.
+4.  Ask Claude Code to write the SQL migration, RLS policy and test together for each table.
+5.  Never commit secrets. Keep the TMDB key only in the edge function, and use the anon key in the app.
+11. Security and Privacy
+• RLS on every table, tested with at least two accounts.
+• TMDB key kept server-side in the edge function.
+• Input validation on reviews, comments and usernames, with length limits.
+• Rate limit commenting and logging in edge functions or with database checks.
+• Private diaries are hidden from non-followers, and the feed respects this.
+• Account deletion removes the user's rows through cascading deletes.
+• Block and report tools for basic moderation.
+• Spoiler tags hide text until tapped.
+12. Testing and Quality
+Type
+What
+Tool
+Unit
+Taste match, ranked-choice, rating utils, queue logic
+Jest
+Component
+Rating stars, review card, log form
+React Native Testing Library
+Database
+RLS policies, triggers
+SQL tests or manual two-user checks
+Manual
+Offline mode, slow network, small and large screens
+Device checklist
+CI
+Lint, typecheck and tests on each push
+GitHub Actions
+13. Demo Data and Demo Script
+Seed script: about 30 fake users with realistic ratings of popular films, a few follow relationships, reviews, lists, and one group mid-vote. Without this, taste match and recommendations look empty.
+Five-minute demo flow
+1.  Sign up, onboarding, land on a feed that already looks alive (30 s).
+2.  Search a film, show the poster-themed page, log it with rating and review (60 s).
+3.  Show the profile with heatmap and stats, then Wrapped (45 s).
+4.  Open another user, show taste-match percentage and recommendations (45 s).
+5.  Watch Together: two phones in one group, add picks, vote live, winner appears (90 s).
+6.  Toggle airplane mode, log a film offline, reconnect and show it sync (30 s).
+7.  Close with the architecture diagram and the RLS point (30 s).
+14. Deliverables Checklist
+[ ] Working app via Expo Go and an APK
+[ ] GitHub repository with clean commits and a README
+[ ] Architecture diagram and ER diagram
+[ ] SQL migrations and seed data
+[ ] Test results and CI badge
+[ ] Short demo video as a backup
+[ ] Project report and presentation slides
+[ ] TMDB attribution shown in the app (About screen)
+15. Risks and Mitigations
+Risk
+Mitigation
+Supabase project paused before demo
+Open the dashboard and run a query the day before
+TMDB rate limits or outage
+Cache in films_cache, keep seeded films cached
+Realtime unreliable on venue Wi-Fi
+Use mobile hotspot and keep a recorded backup demo
+Scope creep
+Follow phase order and the cut list
+Claude Code produces insecure or inconsistent code
+CLAUDE.md rules, review RLS by hand, test with two accounts
+Another student picks a similar idea
+Lead with Watch Together and the taste engine as your distinct angle
+16. Viva Cheat Sheet
+Be ready to explain:
+1.  Why Supabase and Postgres over a NoSQL store (relational social graph, SQL functions, RLS).
+2.  How RLS protects private diaries.
+3.  How taste match is computed and why mean-centering and shrinkage are used.
+4.  How ranked-choice voting works, with a worked example.
+5.  How offline sync stays idempotent.
+6.  Why cursor pagination beats offset pagination for the feed.
+7.  How the TMDB cache avoids rate limits.
+8.  What you would build next: reviews moderation, a web client, streaming-service deep links.
+17. Attribution and Licences
+• This product uses the TMDB API but is not endorsed or certified by TMDB. Show the TMDB logo and this notice in the app.
+• Use open-source libraries under their own licences, and list them in the README.
+• Fonts and icons must be free-licence (for example Google Fonts and Lucide).

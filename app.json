@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Reelo",
+    "slug": "reelo",
+    "version": "1.0.0",
+    "scheme": "reelo",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0E0F13",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.reelo.mobile"
+    },
+    "android": {
+      "package": "app.reelo.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#0E0F13",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-image",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160,
+          "backgroundColor": "#0E0F13"
+        }
+      ],
+      "expo-sharing",
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "color": "#F5A524"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
