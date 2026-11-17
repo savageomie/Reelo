@@ -73,3 +73,18 @@ Done:
 - Wrapped: 7 story cards (totals, top genre, director/actor, busiest month, top rated, taste persona),
   each exported as a PNG via view-shot + share sheet. `features/stats/persona.ts` + tests.
 - Owner's yearly stats snapshot upserted into `user_stats`.
+
+## Phase 5 — Watch Together with realtime voting ✅
+
+Plan: groups list, create/join by code or deep link, group page with filters + picks pool, live voting
+(swipe deck or ranked ballot) with Realtime-driven tallies, owner closes voting via RPC, winner page.
+
+Done:
+- `hooks/useGroups.ts`: group state + one Realtime channel per screen on groups / members / picks / votes.
+- Together tab, Create-or-join (code), `reelo://group/join?code=…` deep link, invite share + copy.
+- Group page: members, owner-controlled filters (max runtime, genres, shared streaming services), picks pool
+  flagged when they break filters, add picks via search or "from your watchlist (matching filters)".
+- Voting: swipe cards (RNGH v3 `usePanGesture` + Reanimated, with accessible yes/no buttons) or tap-to-rank ballot;
+  live results computed with the same IRV code the server uses; "x/y voted"; live/connecting indicator.
+- `close_voting` RPC picks the winner (IRV or most yes), stores the rounds, adds the film to every member's
+  watchlist and notifies everyone; Result page shows round-by-round elimination. Owner can reset.

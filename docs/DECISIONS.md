@@ -69,3 +69,15 @@ Each entry: what was decided, and why. (★ = worth knowing for the viva.)
   falling back to a text share with a `reelo://list/<id>` deep link.
 - **D-024 Profile, diary, watchlist and lists screens take an optional `userId`** param so the same screen serves
   "mine" and "someone else's"; RLS decides what is visible, and the UI shows a lock card for private diaries.
+
+## Watch Together
+
+- **D-025 ★ Live tally is computed on each phone with the same IRV module the server mirrors**
+  (`features/groups/rankedChoice.ts` ↔ `tally_ranked_choice`). Realtime only signals "something changed";
+  the client refetches votes (RLS: members only) and recomputes. The official winner is always decided
+  server-side by `close_voting`, so a modified client can't fake a result.
+- **D-026 Group filters are owner-controlled** (stored in `groups.filters`) and advisory: picks that break them are
+  dimmed rather than blocked, so the group can still choose to keep them.
+- **D-027 Ranked ballots are replaced atomically per user** (delete own votes, insert new ranks) while status is
+  `voting`; RLS enforces own-vote-only and voting-window-only.
+- **D-028 Realtime tables use REPLICA IDENTITY FULL** so filtered DELETE events are delivered too.
