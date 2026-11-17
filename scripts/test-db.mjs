@@ -543,6 +543,29 @@ async function main() {
     assert.deepEqual(bad, [], 'pg_safeupdate rejects these on Supabase; add `where true`');
   });
 
+  console.log('\nPostgREST embeds');
+  await test('every FK hint in an embed (table!constraint(...)) names a real FK on that table pair', async () => {
+    const sources = ['app', 'components', 'hooks', 'lib', 'features'].flatMap((dir) =>
+      readdirSync(join(root, dir), { recursive: true })
+        .filter((f) => /\.tsx?$/.test(f))
+        .map((f) => readFileSync(join(root, dir, f), 'utf8')),
+    );
+    const hints = [...new Set(sources.flatMap((src) => [...src.matchAll(/([a-z_]+)!([a-z_]+)\(/g)].map((m) => `${m[1]}!${m[2]}`)))];
+    assert.ok(hints.length > 0, 'expected at least one hinted embed');
+    const missing = [];
+    for (const hint of hints) {
+      const [table, constraint] = hint.split('!');
+      const { rows } = await admin(
+        `select 1 from pg_constraint c
+         where c.contype = 'f' and c.conname = $1
+           and (c.conrelid = ('public.' || $2)::regclass or c.confrelid = ('public.' || $2)::regclass)`,
+        [constraint, table],
+      );
+      if (!rows.length) missing.push(hint);
+    }
+    assert.deepEqual(missing, [], 'these FK names do not exist (PostgREST would reject the embed)');
+  });
+
   const failed = results.filter((r) => !r.ok);
   console.log(`\n${results.length - failed.length} passed, ${failed.length} failed`);
   process.exit(failed.length ? 1 : 0);

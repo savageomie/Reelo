@@ -16,7 +16,7 @@ export function useMyGroups() {
       unwrap(
         await supabase
           .from('groups')
-          .select('*, members:group_members(user_id), picks:group_picks(id)')
+          .select('*, members:group_members!group_members_group_id_fkey(user_id), picks:group_picks!group_picks_group_id_fkey(id)')
           .order('created_at', { ascending: false }),
       ) as GroupSummary[],
   });
@@ -44,7 +44,7 @@ export function useGroup(id: string | undefined) {
     queryFn: async (): Promise<GroupDetail | null> => {
       const [g, m, p, v] = await Promise.all([
         supabase.from('groups').select('*').eq('id', id as string).maybeSingle(),
-        supabase.from('group_members').select('*, profile:profiles(username, avatar_url)').eq('group_id', id as string).order('joined_at'),
+        supabase.from('group_members').select('*, profile:profiles!group_members_user_id_fkey(username, avatar_url)').eq('group_id', id as string).order('joined_at'),
         supabase.from('group_picks').select('*').eq('group_id', id as string).order('created_at').order('id'),
         supabase.from('group_votes').select('*').eq('group_id', id as string),
       ]);

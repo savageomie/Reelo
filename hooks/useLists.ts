@@ -14,7 +14,7 @@ export function useUserLists(userId: string | null | undefined) {
       unwrap(
         await supabase
           .from('lists')
-          .select('*, items:list_items(tmdb_id, position)')
+          .select('*, items:list_items!list_items_list_id_fkey(tmdb_id, position)')
           .eq('owner_id', userId as string)
           .order('updated_at', { ascending: false }),
       ) as ListWithMeta[],
@@ -34,7 +34,7 @@ export function useList(id: string | undefined) {
       const list = unwrap(
         await supabase
           .from('lists')
-          .select('*, owner:profiles(id, username, avatar_url), items:list_items(*)')
+          .select('*, owner:profiles!lists_owner_id_fkey(id, username, avatar_url), items:list_items!list_items_list_id_fkey(*)')
           .eq('id', id as string)
           .maybeSingle(),
       ) as ListDetail | null;

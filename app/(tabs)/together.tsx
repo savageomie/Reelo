@@ -24,8 +24,11 @@ export default function Together() {
   return (
     <Screen>
       <View className="px-4 pb-3 pt-2">
-        <Text variant="title">Watch Together</Text>
-        <Text variant="caption" className="mt-1">
+        {/* Right padding keeps the title/subtitle clear of any top-right overlay button. */}
+        <Text variant="title" className="pr-12">
+          Watch Together
+        </Text>
+        <Text variant="caption" className="mt-1 pr-12">
           Pool picks with friends, vote live, and let the app crown tonight’s film.
         </Text>
         <View className="mt-4 flex-row gap-3">

@@ -80,7 +80,7 @@ export function useDiaryEntry(id: string | undefined) {
       unwrap(
         await supabase
           .from('diary_entries')
-          .select('*, profile:profiles(username, avatar_url, display_name)')
+          .select('*, profile:profiles!diary_entries_user_id_fkey(username, avatar_url, display_name)')
           .eq('id', id as string)
           .maybeSingle(),
       ) as EntryWithProfile | null,
@@ -100,7 +100,7 @@ export function useFilmReviews(tmdbId: number) {
       unwrap(
         await supabase
           .from('diary_entries')
-          .select('*, profile:profiles(username, avatar_url, display_name)')
+          .select('*, profile:profiles!diary_entries_user_id_fkey(username, avatar_url, display_name)')
           .eq('tmdb_id', tmdbId)
           .not('review', 'is', null)
           .order('created_at', { ascending: false })

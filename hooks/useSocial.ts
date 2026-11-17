@@ -118,7 +118,7 @@ export function useComments(type: 'review' | 'list', id: string | undefined) {
       unwrap(
         await supabase
           .from('comments')
-          .select('*, profile:profiles(username, avatar_url)')
+          .select('*, profile:profiles!comments_user_id_fkey(username, avatar_url)')
           .eq('target_type', type)
           .eq('target_id', id as string)
           .order('created_at', { ascending: true })
@@ -136,7 +136,7 @@ export function useAddComment(type: 'review' | 'list', id: string | undefined) {
         await supabase
           .from('comments')
           .insert({ user_id: me, target_type: type, target_id: id, body: body.trim(), spoiler })
-          .select('*, profile:profiles(username, avatar_url)')
+          .select('*, profile:profiles!comments_user_id_fkey(username, avatar_url)')
           .single(),
       ) as Comment,
     onSuccess: (c) => {
