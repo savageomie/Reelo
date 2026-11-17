@@ -45,3 +45,18 @@ Done:
 - Watchlist: 6 sorts, genre/runtime/"streaming now" filters (`features/lists/watchlistFilter.ts` + tests).
 - Lists overview, list detail (likes, comments, share as image/text), list editor (create/edit, reorder, remove, delete),
   add-to-list sheet; followers/following screen.
+
+## Phase 3 — Follows, feed, likes, comments, notifications ✅
+
+Plan: home feed via `get_feed` RPC with cursor-based infinite scroll; feed cards with optimistic likes; comment
+threads with spoiler tags; notifications screen with follow-request accept/decline and live updates; push delivery.
+
+Done:
+- Home: feed (FlashList + `useInfiniteQuery`, cursor = `(created_at, id)`), "People with similar taste", trending rail.
+- `FeedCard` for log/review, new list, follow events; optimistic like with rollback; spoiler reveal.
+- Comments (`CommentThread`) on reviews and lists, with spoiler flag, delete own, DB rate limit surfaced as a toast.
+- Notifications screen: Realtime subscription, unread dot on Home/Profile, mark-read, accept/decline follow requests,
+  deep links to the review/list/group.
+- Push: `lib/push.ts` registers Expo push tokens (owner-only RLS); `supabase/functions/send-push` delivers via the
+  Expo Push API when called by a Database Webhook on `notifications` INSERT.
+- Block/report (public profile menu).

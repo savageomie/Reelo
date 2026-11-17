@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 
 import { mergePages, nextCursor } from '@/features/social/feedCursor';
 import { supabase, unwrap } from '@/lib/supabase';
@@ -185,6 +185,7 @@ export function useFeed() {
 export function useNotifications() {
   const me = useUserId();
   const qc = useQueryClient();
+  const instance = useId();
   const q = useQuery({
     queryKey: ['notifications', me],
     enabled: !!me,
@@ -202,7 +203,7 @@ export function useNotifications() {
   useEffect(() => {
     if (!me) return;
     const channel = supabase
-      .channel(`notifications:${me}`)
+      .channel(`notifications:${me}:${instance}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${me}` }, () =>
         qc.invalidateQueries({ queryKey: ['notifications', me] }),
       )
@@ -210,7 +211,7 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [me, qc]);
+  }, [me, qc, instance]);
 
   return q;
 }
