@@ -93,3 +93,14 @@ Each entry: what was decided, and why. (★ = worth knowing for the viva.)
   films_cache pool by popularity, the user's own diary). Weights: collaborative 0.5, content 0.35, popularity 0.15;
   fewer than 5 rated films → popularity (+ a little content). Content features: genres (1.0), directors (1.5),
   top-5 cast (0.6), decade (0.5); profile weight = rating − 3 (4★ → 1, 5★ → 2).
+
+## Phase 7 scope cuts and import
+
+- **D-032 Shared-element poster transitions skipped.** Reanimated 4's shared transitions are still behind a feature flag
+  and unstable with native-stack; posters fade in via expo-image transitions instead.
+- **D-033 P2 extras not built:** taste-profile share card and separate discussion threads (comments with spoiler tags on
+  reviews/lists cover discussion).
+- **D-034 Letterboxd ratings.csv / watched.csv have no viewing date**, so the date the film was logged on Letterboxd is
+  used as `watched_on`; imported entries get a `letterboxd` tag. Re-imports skip (film, date) pairs that already exist.
+- **D-035 Import runs in an edge function with the service role** but only ever writes rows for the user identified by the
+  caller's JWT (`auth.getUser(token)`), so bulk imports bypass the 30/min rate limit safely.

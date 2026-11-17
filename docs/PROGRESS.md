@@ -101,3 +101,22 @@ Done:
 - `features/recs/pipeline.ts` (+ tests): content profile from loved films, collaborative candidates from
   `get_collaborative_recs`, popularity; hybrid blend; cold-start fallback; "Because you loved X" rail.
 - Home rails: Recommended for you (with "Fans of X" explanations), Because you loved X, Trending.
+
+## Phase 7 — CSV import, offline sync, polish, animations ✅ (trimmed per scope rule)
+
+Plan: Letterboxd import (pure parser + edge function + screen), finish offline UX, settings, About/TMDB
+attribution, error boundary; keep animations to the high-value spots.
+
+Done:
+- `supabase/functions/_shared/letterboxd.ts` (RFC 4180 CSV, diary/reviews/ratings/watched/watchlist detection,
+  TMDB best-match by title+year) + tests; `import-letterboxd` edge function (TMDB key server-side, cached matches,
+  idempotent re-import, per-user inserts); Import screen with preview and unmatched report.
+- Offline: queue already powers logging/watchlist; floating offline/pending banner, pending badges in Diary/Film,
+  Settings "Sync now" with status.
+- Settings: theme (dark/light/system), haptics, private diary, import, about, sign out, delete account (cascade).
+- About: TMDB logo + required notice, JustWatch credit, open-source licence list.
+- Root ErrorBoundary + not-found route.
+- Motion already in place: rating spring + haptics, swipe cards, toasts, Wrapped card entrances, live vote bars.
+
+Trimmed (see DECISIONS D-032..D-034): shared-element poster transition, drag-to-reorder, taste-profile card,
+discussion threads (comments with spoiler tags cover the need).

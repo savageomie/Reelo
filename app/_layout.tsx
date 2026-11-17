@@ -10,15 +10,17 @@ import {
 } from '@expo-google-fonts/inter';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { colorScheme } from 'nativewind';
 import { useEffect } from 'react';
+import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { OfflineBanner } from '@/components/OfflineBanner';
+import { ErrorState } from '@/components/ui/States';
 import { ToastHost } from '@/components/ui/Toast';
 import { startOfflineSync } from '@/lib/offlineQueue';
 import { startPushRegistration } from '@/lib/push';
@@ -28,6 +30,15 @@ import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+/** Route-level crash screen (Expo Router picks up this export for every route below the root). */
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return (
+    <View style={{ flex: 1 }} className="bg-bg dark:bg-bg-dark">
+      <ErrorState title="Something broke" error={error} onRetry={retry} />
+    </View>
+  );
+}
 
 function ThemedStack() {
   const { isDark, colors } = useTheme();
