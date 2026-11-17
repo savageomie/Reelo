@@ -73,6 +73,51 @@ async function as(userId, sql, params = []) {
 /** Run SQL as superuser (like the service role / migrations). */
 const admin = (sql, params = []) => db.query(sql, params);
 
+/**
+ * Mimics Supabase's pg_safeupdate: returns every DELETE/UPDATE statement in `src` that has no
+ * top-level WHERE clause (pg_safeupdate rejects those for API/RPC calls). Comments and string
+ * literals are stripped first; `on conflict ... do update`, `for update`, `on delete/update`
+ * and trigger clauses are ignored.
+ */
+function findUnqualifiedWrites(src) {
+  const code = src
+    .replace(/--[^\n]*/g, ' ')
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/'(?:[^']|'')*'/g, "''")
+    .toLowerCase();
+  const offenders = [];
+  const re = /\b(delete\s+from|update)\s+(?:only\s+)?[a-z_][a-z0-9_."]*/g;
+  let m;
+  while ((m = re.exec(code))) {
+    const before = code.slice(Math.max(0, m.index - 12), m.index);
+    if (/\b(do|for|on|or|of|before|after)\s+$/.test(before)) continue;
+    if (m[1] === 'update' && !/^\s*(?:as\s+)?[a-z_]*\s*set\b/.test(code.slice(re.lastIndex))) continue;
+    // Walk to the end of the statement, tracking paren depth; look for a top-level WHERE.
+    let depth = 0;
+    let hasWhere = false;
+    let i = re.lastIndex;
+    for (; i < code.length; i++) {
+      const ch = code[i];
+      if (ch === '(') depth++;
+      else if (ch === ')') {
+        if (depth === 0) break; // statement ends inside an enclosing CTE / subquery
+        depth--;
+      } else if (ch === ';' && depth === 0) break;
+      else if (
+        depth === 0 &&
+        code.startsWith('where', i) &&
+        !/[a-z0-9_]/.test(code[i - 1]) &&
+        !/[a-z0-9_]/.test(code[i + 5] ?? '')
+      ) {
+        hasWhere = true;
+        break;
+      }
+    }
+    if (!hasWhere) offenders.push(code.slice(m.index, Math.min(i, m.index + 80)).replace(/\s+/g, ' ').trim());
+  }
+  return offenders;
+}
+
 async function rejects(promise, pattern) {
   let failed = false;
   try {
@@ -475,6 +520,27 @@ async function main() {
       select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
       where n.nspname = 'public' and c.relkind = 'r' and not c.relrowsecurity`);
     assert.deepEqual(rows, []);
+  });
+
+  console.log('\nSafe updates (pg_safeupdate)');
+  await test('safe-update detector flags bare DELETE/UPDATE and accepts qualified ones', async () => {
+    assert.deepEqual(findUnqualifiedWrites('delete from public.t;'), ['delete from public.t']);
+    assert.deepEqual(findUnqualifiedWrites('update public.t set a = 1;'), ['update public.t set a = 1']);
+    assert.equal(findUnqualifiedWrites('update t set a = (select x from y where z) ;').length, 1);
+    assert.deepEqual(findUnqualifiedWrites('delete from public.t where true;'), []);
+    assert.deepEqual(findUnqualifiedWrites('update t\n set a = 1\n where id = $1;'), []);
+    assert.deepEqual(findUnqualifiedWrites('insert into t values (1) on conflict (id) do update set a = 1;'), []);
+    assert.deepEqual(findUnqualifiedWrites("select 1 for update; -- delete from t;\n if tg_op = 'DELETE' then"), []);
+    assert.deepEqual(findUnqualifiedWrites('with d as (delete from t where a returning *) select 1;'), []);
+  });
+
+  await test('no public function contains an unqualified DELETE or UPDATE', async () => {
+    const { rows } = await admin(`
+      select p.proname, p.prosrc from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'public'
+        and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')`);
+    const bad = rows.flatMap((r) => findUnqualifiedWrites(r.prosrc).map((s) => `${r.proname}: ${s}`));
+    assert.deepEqual(bad, [], 'pg_safeupdate rejects these on Supabase; add `where true`');
   });
 
   const failed = results.filter((r) => !r.ok);
