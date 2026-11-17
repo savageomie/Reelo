@@ -71,3 +71,14 @@ describe('mergePages', () => {
     expect(mergePages([p1, p2]).map((r) => r.id)).toEqual(['c', 'b', 'a']);
   });
 });
+
+describe('microsecond timestamps from Postgres', () => {
+  it('orders rows that differ only in microseconds and never skips them', () => {
+    const a = { createdAt: '2026-11-17T10:00:00.123400+00:00', id: 'a' };
+    const b = { createdAt: '2026-11-17T10:00:00.123900+00:00', id: 'b' };
+    expect(compareDesc(b, a)).toBeLessThan(0); // b is newer
+    const page1 = pageAfter([a, b], null, 1);
+    expect(page1.map((r) => r.id)).toEqual(['b']);
+    expect(pageAfter([a, b], nextCursor(page1, 1), 1).map((r) => r.id)).toEqual(['a']);
+  });
+});

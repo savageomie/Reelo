@@ -340,11 +340,11 @@ async function main() {
     const seen = [];
     let cursor = null;
     for (let guard = 0; guard < 20; guard++) {
-      const { rows } = await as(U.dave, `select id, created_at from public.get_feed($1, 3)`, [cursor]);
+      const { rows } = await as(U.dave, `select id, created_at::text as ts from public.get_feed($1, 3)`, [cursor]);
       seen.push(...rows.map((r) => r.id));
       if (rows.length < 3) break;
       const last = rows[rows.length - 1];
-      cursor = `${new Date(last.created_at).toISOString()}|${last.id}`;
+      cursor = `${last.ts}|${last.id}`; // exact server timestamp (microseconds)
     }
     assert.equal(new Set(seen).size, seen.length, 'duplicates found');
     assert.deepEqual(seen, all.map((r) => r.id));

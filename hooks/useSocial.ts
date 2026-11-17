@@ -170,7 +170,8 @@ export function useFeed() {
       (unwrap(await supabase.rpc('get_feed', { p_cursor: pageParam, p_limit: FEED_PAGE })) ?? []) as FeedItem[],
     getNextPageParam: (last) =>
       nextCursor(
-        last.map((r) => ({ ...r, createdAt: new Date(r.created_at).toISOString() })),
+        // Keep the server's exact timestamp string (microseconds) in the cursor.
+        last.map((r) => ({ ...r, createdAt: r.created_at })),
         FEED_PAGE,
       ),
   });

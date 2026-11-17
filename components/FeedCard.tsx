@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { Heart, List as ListIcon, MessageCircle, Repeat, UserPlus } from 'lucide-react-native';
-import { useState } from 'react';
+import { useRecyclingState } from '@shopify/flash-list';
 import { Pressable, View } from 'react-native';
 
 import { timeAgo } from '@/features/diary/grouping';
@@ -15,9 +15,10 @@ import { Text } from './ui/Text';
 /** One activity in the home feed: a log/review, a new list, or a follow. */
 export function FeedCard({ item }: { item: FeedItem }) {
   const { colors } = useTheme();
-  const [liked, setLiked] = useState(item.liked_by_me);
-  const [likeCount, setLikeCount] = useState(item.like_count);
-  const [revealed, setRevealed] = useState(false);
+  // FlashList recycles rows: state must reset when the row shows a different item.
+  const [liked, setLiked] = useRecyclingState(item.liked_by_me, [item.id]);
+  const [likeCount, setLikeCount] = useRecyclingState(item.like_count, [item.id]);
+  const [revealed, setRevealed] = useRecyclingState(false, [item.id]);
   const toggle = useToggleLike(item.type === 'list' ? 'list' : 'review', item.ref_id);
 
   const like = () => {
