@@ -18,7 +18,12 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { OfflineBanner } from '@/components/OfflineBanner';
+import { ToastHost } from '@/components/ui/Toast';
+import { startOfflineSync } from '@/lib/offlineQueue';
+import { startPushRegistration } from '@/lib/push';
 import { queryClient } from '@/lib/queryClient';
+import { startAuthListener, useAuth } from '@/store/auth';
 import { useSettings } from '@/store/settings';
 import { useTheme } from '@/theme';
 
@@ -26,6 +31,15 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 
 function ThemedStack() {
   const { isDark, colors } = useTheme();
+  const session = useAuth((s) => s.session);
+
+  useEffect(() => {
+    if (session) {
+      startOfflineSync();
+      startPushRegistration(session.user.id);
+    }
+  }, [session]);
+
   return (
     <>
       <StatusBar style={isDark ? 'light' : 'dark'} />
@@ -37,10 +51,40 @@ function ThemedStack() {
           headerShadowVisible: false,
           contentStyle: { backgroundColor: colors.bg },
           headerBackButtonDisplayMode: 'minimal',
+          animation: 'slide_from_right',
         }}
       >
-        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="index" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false, animation: 'fade' }} />
+        <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
+        <Stack.Screen name="film/[id]" options={{ title: '', headerTransparent: true }} />
+        <Stack.Screen name="person/[id]" options={{ title: '' }} />
+        <Stack.Screen name="user/[username]" options={{ title: '' }} />
+        <Stack.Screen name="log/[tmdbId]" options={{ presentation: 'modal', title: 'Log film' }} />
+        <Stack.Screen name="search" options={{ title: 'Search' }} />
+        <Stack.Screen name="diary/index" options={{ title: 'Diary' }} />
+        <Stack.Screen name="diary/[entryId]" options={{ title: 'Review' }} />
+        <Stack.Screen name="watchlist" options={{ title: 'Watchlist' }} />
+        <Stack.Screen name="lists/index" options={{ title: 'Lists' }} />
+        <Stack.Screen name="list/[id]" options={{ title: 'List' }} />
+        <Stack.Screen name="list/new" options={{ presentation: 'modal', title: 'New list' }} />
+        <Stack.Screen name="list/edit/[id]" options={{ presentation: 'modal', title: 'Edit list' }} />
+        <Stack.Screen name="edit-profile" options={{ presentation: 'modal', title: 'Edit profile' }} />
+        <Stack.Screen name="follows/[userId]" options={{ title: '' }} />
+        <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
+        <Stack.Screen name="group/new" options={{ presentation: 'modal', title: 'Watch Together' }} />
+        <Stack.Screen name="group/[id]/index" options={{ title: '' }} />
+        <Stack.Screen name="group/[id]/vote" options={{ title: 'Vote', gestureEnabled: false }} />
+        <Stack.Screen name="group/[id]/result" options={{ title: 'Result' }} />
+        <Stack.Screen name="stats" options={{ title: 'Stats' }} />
+        <Stack.Screen name="wrapped" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+        <Stack.Screen name="import" options={{ title: 'Import from Letterboxd' }} />
+        <Stack.Screen name="about" options={{ title: 'About' }} />
       </Stack>
+      <OfflineBanner />
+      <ToastHost />
     </>
   );
 }
@@ -54,6 +98,10 @@ export default function RootLayout() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
+
+  useEffect(() => {
+    startAuthListener();
+  }, []);
 
   useEffect(() => {
     colorScheme.set(theme);

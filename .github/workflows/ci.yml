@@ -20,3 +20,5 @@ jobs:
         run: npm run typecheck
       - name: Test
         run: npm test -- --ci
+      - name: Database tests (migrations + RLS in PGlite)
+        run: npm run test:db

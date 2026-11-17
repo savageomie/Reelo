@@ -12,22 +12,19 @@
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "check": "npm run lint && npm run typecheck && npm test",
-    "seed": "node scripts/seed.mjs"
+    "check": "npm run lint && npm run typecheck && npm test && npm run test:db",
+    "seed": "node scripts/seed.mjs",
+    "test:db": "node scripts/test-db.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/dm-serif-display": "^0.4.2",
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/datetimepicker": "9.2.1",
     "@shopify/flash-list": "2.3.2",
     "@supabase/supabase-js": "^2.119.0",
     "@tanstack/react-query": "^5.107.2",
-    "@testing-library/react-native": "^14.1.0",
-    "@types/jest": "30.0.0",
-    "babel-preset-expo": "~58.0.0",
-    "eslint": "^9.39.5",
-    "eslint-config-expo": "~58.0.4",
     "expo": "~58.0.26",
     "expo-clipboard": "~58.0.4",
     "expo-constants": "~58.0.16",
@@ -37,6 +34,7 @@
     "expo-font": "~58.0.12",
     "expo-haptics": "~58.0.8",
     "expo-image": "~58.0.18",
+    "expo-image-picker": "~58.0.10",
     "expo-linking": "~58.0.17",
     "expo-network": "~58.0.5",
     "expo-notifications": "~58.1.9",
@@ -46,11 +44,8 @@
     "expo-status-bar": "~58.0.5",
     "expo-system-ui": "~58.0.7",
     "expo-web-browser": "~58.1.0",
-    "jest": "~30.5.2",
-    "jest-expo": "~58.0.15",
     "lucide-react-native": "^1.74.0",
     "nativewind": "^4.2.7",
-    "prettier-plugin-tailwindcss": "^0.5.11",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-native": "0.88.1",
@@ -69,7 +64,16 @@
     "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
+    "@testing-library/react-native": "^14.1.0",
+    "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",
+    "babel-preset-expo": "~58.0.0",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~58.0.4",
+    "jest": "~30.5.2",
+    "jest-expo": "~58.0.15",
+    "prettier-plugin-tailwindcss": "^0.5.11",
     "typescript": "~6.0.3"
   },
   "jest": {
@@ -78,7 +82,9 @@
       "<rootDir>/__tests__/**/*.test.ts?(x)"
     ],
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/$1"
+      "^@/(.*)$": "<rootDir>/$1",
+      "^lucide-react-native$": "<rootDir>/test/lucideMock.js",
+      "^react-native-reanimated$": "<rootDir>/test/reanimatedMock.js"
     },
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|react-native-svg|lucide-react-native|nativewind|react-native-css-interop|@shopify/flash-list)"

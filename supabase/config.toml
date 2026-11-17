@@ -1,0 +1,20 @@
+# Minimal Supabase CLI config for Reelo. Created by hand (not `supabase init`) so the CLI can
+# link/deploy without Docker. Run `npx supabase link --project-ref <ref>` before `db push`.
+project_id = "reelo"
+
+[api]
+schemas = ["public"]
+
+[auth]
+site_url = "reelo://"
+additional_redirect_urls = ["reelo://auth-callback", "exp://**"]
+
+[functions.tmdb]
+verify_jwt = true
+
+[functions.import-letterboxd]
+verify_jwt = true
+
+# Called by a Database Webhook on notifications INSERT (see docs/HANDOFF.md); secured by a shared secret.
+[functions.send-push]
+verify_jwt = false
