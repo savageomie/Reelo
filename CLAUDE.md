@@ -54,3 +54,17 @@ __tests__/      Jest tests (*.test.ts / *.test.tsx)
 6. Validate user input (usernames, reviews, comments) with the limits in `lib/validation.ts`; the DB
    enforces the same limits with CHECK constraints.
 7. Commit after each working feature/phase with a clear message (`Phase N: ...`).
+
+## Commands
+
+```bash
+npm run lint        # ESLint
+npm run typecheck   # tsc --noEmit
+npm test            # Jest (unit + RNTL component tests)
+npm run test:db     # apply migrations to PGlite and run RLS/trigger/SQL checks
+npm run check       # all of the above — run before finishing any task
+npm run seed        # demo data (needs SUPABASE_SERVICE_ROLE_KEY in .env); seed:dry for an offline dry run
+npx expo export --platform android   # proves the JS bundle builds
+```
+
+Setup/deploy steps for Supabase, TMDB secret and edge functions: `docs/HANDOFF.md`.

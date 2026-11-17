@@ -120,3 +120,19 @@ Done:
 
 Trimmed (see DECISIONS D-032..D-034): shared-element poster transition, drag-to-reorder, taste-profile card,
 discussion threads (comments with spoiler tags cover the need).
+
+## Phase 8 — Seed data, tests, APK config, docs ✅
+
+Done:
+- `scripts/seed.mjs` (+ `seedData.mjs`, `--dry-run`): 30 users, ~1,100 diary entries, follows, reviews, likes,
+  comments, 12 lists, watchlists, a ranked group mid-vote and a finished swipe group; refreshes similarity tables.
+- Tests: 111 Jest tests in 14 suites + 41 PGlite DB checks; all wired into CI and `npm run check`.
+- `eas.json` (preview profile builds an APK; env via `eas env:create`).
+- Docs: `README.md`, `docs/ARCHITECTURE.md` (architecture + ER diagrams, RLS table), `docs/HANDOFF.md`
+  (setup, deploy, seed, run, manual test checklist, viva notes), sample Letterboxd CSV.
+- Final verification: lint ✓, typecheck ✓, Jest 111/111 ✓, DB 41/41 ✓, `expo export` (Android bundle) ✓,
+  `expo-doctor` 20/20 ✓, `expo start` boots Metro ✓.
+
+Not possible here (needs your accounts): deploying to Supabase, running on a phone, building the APK — see HANDOFF.
+
+## Status: all phases complete. Next steps for you are in docs/HANDOFF.md.
